@@ -1,3 +1,52 @@
 <%
-alert(Request.Form.course_path);
+/*
+Функция распаковывает архив курса в папку курсов WebTutor
+@param String zip_path - путь к архиву курса
+@return String - путь к каталогу с разархивированным курсом
+TODO
+*/
+function unzip_course(course_path){
+    return "";
+}
+
+/*
+Создаёт карточку модуля курса
+@param String course_path - путь к каталогу курса в WebTutor
+@return Doc - документ модуля курса
+TODO
+*/
+function create_module(course_path){
+    return OpenNewDoc('x-local://wtv/wtv_course_module.xmd');
+}
+
+/*
+Создаёт карточку курса
+@param Doc module - документ модуля курса
+@return Doc course - документ курса
+TODO
+*/
+function create_course(module){
+    return OpenNewDoc('x-local://wtv/wtv_course.xmd');
+}
+
+
+/*
+Главная функция приложения - создаёт курс в WebTutor
+@param String course_path - абсолютный путь к файлу курса, опубликованного системой adaptlearning
+@return Bool - статус успешности выполнения модуля
+*/
+function main(course_path){
+    var is_file_exists = FilePathExists(course_path);
+    if (!is_file_exists) {
+        alert("adaptTutor.Error.1: Передан некорректный путь к файлу");
+        return false;
+    }
+
+    var unzipped_course_path = unzip_course(course_path);
+    var module = create_module(unzipped_course_path);
+    var course = create_course(module);
+    return true;
+}
+
+main(Request.Form.course_path);
 %>
