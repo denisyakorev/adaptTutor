@@ -1,3 +1,7 @@
+<!DOCTYPE html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+</head>
 <%
 
 function test_main(){
@@ -14,9 +18,64 @@ function test_main(){
     var course = ArrayOptFirstElem(XQuery('for $elem in courses where $elem/name="Course title" return $elem'));
     if (course == undefined) {
         %><h1>Тест 2 не пройден</h1><%
+        return;
     }
+
+    var course_doc = OpenDoc(UrlFromDocID(Int(course.id)));
+    if(course_doc.TopElem.parts[0].course_module_id != Int(course_module_id)){
+        %><h1>Тест 3 не пройден</h1><%
+    }
+
+    DeleteDoc(UrlFromDocID(Int(course.id)));
+    DeleteDoc(UrlFromDocID(Int(module.id)));
+}
+
+
+function test_unzip_course(){
+    var src = 'C:\\Program Files\\WebSoft\\WebTutorServer\\wt\\web\\adaptTutor\\project\\tests\\download.zip';
+    var adapt_lib = OpenCodeLib('../../adapt_lib.js');
+    var new_path = adapt_lib.unzip_course(src);
+
+    if(new_path == ""){
+        %><h1>Тест 4 не пройден</h1><%
+        return;
+    }
+    
+    if(!FilePathExists(UrlToFilePath(new_path))){
+        %><h1>Тест 5 не пройден</h1><%
+        return;
+    }
+    if(!FilePathExists(UrlToFilePath(new_path)+"\\imsmanifest.xml")){
+        %><h1>Тест 6 не пройден</h1><%
+        return;
+    }
+
+    DeleteDirectory(UrlToFilePath(new_path));
+}
+
+
+function test_create_module(){
+    var src = 'C:\\Program Files\\WebSoft\\WebTutorServer\\wt\\web\\adaptTutor\\project\\tests\\download.zip';
+    var adapt_lib = OpenCodeLib('../../adapt_lib.js');
+    var new_path = adapt_lib.unzip_course(src);
+
+    adapt_lib.create_module(new_path);
+    var module = ArrayOptFirstElem(XQuery('for $elem in course_modules where $elem/name="Course title" return $elem'));
+    if (module == undefined) {
+        %><h1>Тест 7 не пройден</h1><%
+        return;
+    }
+    if (module.url != StrReplace(new_path, 'x-local://wt/web/webtutor/', '')){
+        %><h1>Тест 8 не пройден</h1><%
+    }
+    if (module.set_status_side != 'course'){
+        %><h1>Тест 9 не пройден</h1><%
+    }
+
 }
 
 test_main();
+test_unzip_course();
+test_create_module();
 
 %>
