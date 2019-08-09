@@ -74,8 +74,25 @@ function test_create_module(){
 
 }
 
+function test_get_code_from_path(){
+    var adapt_lib = OpenCodeLib('../../adapt_lib.js');
+    var code1 = adapt_lib.get_code_from_path('');
+    if(code1 != ''){
+        %><h1>Тест 10 не пройден</h1><%
+    }
+    var code2 = adapt_lib.get_code_from_path('/asdfa/asdfasdfdafasdfas/123/download.zip');
+    if(code2 != '123'){
+        %><h1>Тест 11 не пройден</h1><%
+    }
+    var code3 = adapt_lib.get_code_from_path('/asdfa/asdfasdfdafasdfas/123');
+    if(code3 != ''){
+        %><h1>Тест 12 не пройден</h1><%
+    }
+}
+
 test_main();
 test_unzip_course();
 test_create_module();
+test_get_code_from_path();
 
 %>

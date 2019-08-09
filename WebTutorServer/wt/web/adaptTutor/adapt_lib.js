@@ -15,6 +15,28 @@ function unzip_course(course_path){
 }
 
 /**
+ * Возвращает уникальный код, присвоенный adaptlearning курсу. 
+ * @param String course_path - путь к каталогу курса
+ * @return String - код курса
+ */
+function get_code_from_path(course_path){    
+    if(StrMatchesPattern(course_path, '*\download.zip')){       
+        var new_path = StrReplace(course_path, '\\download.zip', '');
+        var path_length = StrLen(new_path);
+        var result = "";
+        for (var i = path_length; i = 1; i--){
+            if(StrCharRangePos(new_path, i, 1) == '\\'){
+                return SrtRightRangePos(new_path, i+1);
+            }
+        }        
+    }else{
+        return '';
+    }
+    
+}
+
+
+/**
  * Получает из файла манифеста данные, необходимые для формирования модуля
  * @param Strind manifest_path - путь к файлу манифеста
  * @return Bool - флаг об успешности выполнения операции
