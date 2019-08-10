@@ -13,7 +13,7 @@ function main(course_path){
     }
     var adapt_lib = OpenCodeLib('adapt_lib.js');
     var code = adapt_lib.get_code_from_path(course_path);
-    var unzipped_course_path = adapt_lib.unzip_course(course_path);
+    var unzipped_course_path = adapt_lib.unzip_course(course_path, code);
     if(unzipped_course_path == "") {
         alert("adaptTutor.Error.2: Ошибка при распаковке курса");
         return false;
