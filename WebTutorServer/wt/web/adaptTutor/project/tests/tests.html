@@ -34,41 +34,48 @@ function test_main(){
 function test_unzip_course(){
     var src = 'C:\\Program Files\\WebSoft\\WebTutorServer\\wt\\web\\adaptTutor\\project\\tests\\download.zip';
     var adapt_lib = OpenCodeLib('../../adapt_lib.js');
-    var new_path = adapt_lib.unzip_course(src);
+    var new_path = adapt_lib.unzip_course(src, 'tests');
 
     if(new_path == ""){
         %><h1>Тест 4 не пройден</h1><%
         return;
     }
     
-    if(!FilePathExists(UrlToFilePath(new_path))){
+    if(!FilePathExists(new_path)){
         %><h1>Тест 5 не пройден</h1><%
         return;
     }
-    if(!FilePathExists(UrlToFilePath(new_path)+"\\imsmanifest.xml")){
+
+    if(new_path != 'C:\\Program Files\\WebSoft\\WebTutorServer\\wt\\web\\webtutor\\tests'){
+        %><h1>Тест 5.1 не пройден. Полученный путь:<%=new_path%></h1><%
+        return;
+    }
+
+    if(!FilePathExists(new_path+"\\imsmanifest.xml")){
         %><h1>Тест 6 не пройден</h1><%
         return;
     }
 
-    DeleteDirectory(UrlToFilePath(new_path));
+    DeleteDirectory(new_path);
 }
 
 
-function test_create_module(){
+function test_get_or_create_module(){
     var src = 'C:\\Program Files\\WebSoft\\WebTutorServer\\wt\\web\\adaptTutor\\project\\tests\\download.zip';
     var adapt_lib = OpenCodeLib('../../adapt_lib.js');
     var new_path = adapt_lib.unzip_course(src);
 
-    adapt_lib.create_module(new_path);
-    var module = ArrayOptFirstElem(XQuery('for $elem in course_modules where $elem/name="Course title" return $elem'));
+    adapt_lib.get_or_create_module(new_path);
+    var module = ArrayOptFirstElem(XQuery('for $elem in course_modules where $elem/code="tests" and $elem/name="Course title" return $elem'));
     if (module == undefined) {
         %><h1>Тест 7 не пройден</h1><%
         return;
     }
-    if (module.url != StrReplace(new_path, 'x-local://wt/web/webtutor/', '')){
+    module_doc = OpenDoc(UrlFromDocID(Int(module.id)));
+    if (module_doc.TopElem.url != '/tests/'){
         %><h1>Тест 8 не пройден</h1><%
     }
-    if (module.set_status_side != 'course'){
+    if (module_doc.TopElem.set_status_side != 'course'){
         %><h1>Тест 9 не пройден</h1><%
     }
 
@@ -93,20 +100,74 @@ function test_get_code_from_path(){
 
 function test_get_module_data(){
     var adapt_lib = OpenCodeLib('../../adapt_lib.js');
-    var code1 = adapt_lib.get_module_data('x-local://wt/web/adaptTutor/project/tests/imsmanifest.xml');
+    var code1 = adapt_lib.get_module_data('C:\\Program Files\\WebSoft\\WebTutorServer\\wt\\web\\adaptTutor\\project\\tests\\imsmanifest.xml');
     if(code1 != 'Course title'){
         %><h1>Тест 13 не пройден</h1><%
     }
     var code2 = adapt_lib.get_module_data('C:\\Program Files\\WebSoft\\WebTutorServer\\wt\\web\\adaptTutor\\project\\tests\\imsmanifest2.xml');
     if(code2 != 'Course title2'){
-        %><h1>Тест 14 не пройден</h1><%
+        %><h1>Тест 14 не пройден. Получен код:<%=code2%></h1><%
     }
+}
+
+
+function test_create_module(){    
+    var course_path = '/webtutor/test1';
+    var code = 'test1';
+    var module_name = 'test_module';
+    var adapt_lib = OpenCodeLib('../../adapt_lib.js');
+    var doc = adapt_lib.create_module(course_path, code, module_name)
+
+    var module = ArrayOptFirstElem(XQuery('for $elem in course_modules where $elem/code="test1" and $elem/name="test_module" return $elem'));
+    if (module == undefined) {
+        %><h1>Тест 15 не пройден</h1><%
+        return;
+    }
+    var module_doc = OpenDoc(UrlFromDocID(Int(module.id)));
+    if (module_doc.TopElem.url != '/webtutor/test1'){
+        %><h1>Тест 16 не пройден. Передан url:<%=module_doc.TopElem.url%></h1><%
+    }
+    if (module_doc.TopElem.set_status_side != 'course'){
+        %><h1>Тест 17 не пройден</h1><%
+    }
+    DeleteDoc(UrlFromDocID(Int(module.id)));
+}
+
+
+function test_update_module(){
+    var course_path = '/webtutor/test1';
+    var code = 'test1';
+    var module_name = 'test_module';
+    var adapt_lib = OpenCodeLib('../../adapt_lib.js');
+    var doc = adapt_lib.create_module(course_path, code, module_name)
+
+    adapt_lib.update_module(Int(doc.DocID), '/webtutor/test2', 'test2', 'test_module2');
+    var module = ArrayOptFirstElem(XQuery('for $elem in course_modules where $elem/code="test2" and $elem/name="test_module2" return $elem'));
+    if (module == undefined) {
+        %><h1>Тест 18 не пройден</h1><%
+        return;
+    }
+    var module_doc = OpenDoc(UrlFromDocID(Int(module.id)));
+    if (module_doc.TopElem.url != '/webtutor/test2'){
+        %><h1>Тест 19 не пройден. Передан url:<%=module_doc.TopElem.url%></h1><%
+    }
+    if (module_doc.TopElem.set_status_side != 'course'){
+        %><h1>Тест 20 не пройден</h1><%
+    }
+    DeleteDoc(UrlFromDocID(Int(module.id)));
+}
+
+
+function test_get_or_create_course(){
+
 }
 
 test_main();
 test_unzip_course();
-test_create_module();
+test_get_or_create_module();
 test_get_code_from_path();
 test_get_module_data();
+test_create_module();
+test_update_module();
 
 %>

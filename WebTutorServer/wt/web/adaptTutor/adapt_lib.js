@@ -8,12 +8,13 @@ function unzip_course(course_path, code){
     var new_path = "x-local://wt/web/webtutor/"+ code;
     try{
         ZipExtract(course_path, new_path);
-        return new_path;
+        return UrlToFilePath(new_path);
     }catch(e){
         alert("adaptTutorLib. Ошибка 1. Ошибка при распаковке архива с курсом");
         return "";
     }    
 }
+
 
 /**
  * Возвращает уникальный код, присвоенный adaptlearning курсу. 
@@ -37,30 +38,72 @@ function get_code_from_path(course_path){
 
 
 /**
- * Получает из файла манифеста данные, необходимые для формирования модуля
+ * Получает из файла манифеста название модуля
  * @param Strind manifest_path - путь к файлу манифеста
- * @return String - название курса
- * TODO
+ * @return String - название курса 
  */
 function get_module_data(manifest_path){
-    alert(manifest_path);
     var file = LoadFileData(manifest_path);
     return StrScan(file, '%*s<title><![CDATA[%s]]></title>%*s')[0];
 }
 
 
 /**
+ * Создаёт новый модуль электронного курса
+ * @param String course_path - путь к модулю, относительно папки /wt/web
+ * @param String code - код курса
+ * @param String module_name - название курса
+ * @return Doc - документ модуля
+ */
+function create_module(course_path, code, module_name){
+    var new_module = OpenNewDoc('x-local://wtv/wtv_course_module.xmd');
+    new_module.TopElem.code = code;
+    new_module.TopElem.name = module_name;
+    new_module.TopElem.url = course_path;
+    new_module.TopElem.set_status_side = 'course';
+    new_module.BindToDb();
+    new_module.Save();
+    return new_module;
+}
+
+
+/**
+ * Обновляет название модуля и возвращает его содержимое
+ * @param Int module_id - идентификатор обновляемого модуля
+ * @param String course_path - путь к модулю, относительно папки /wt/web
+ * @param String code - код курса
+ * @param String module_name - название курса 
+ * @return Doc - документ модуля 
+ */
+function update_module(module_id, course_path, code, module_name){
+    var module = OpenDoc(UrlFromDocID(module_id));
+    module.TopElem.name = module_name;
+    module.TopElem.code = code;
+    module.TopElem.url = course_path;
+    module.Save();
+    return module;
+}
+
+
+/**
 * Создаёт карточку модуля курса
 * @param String course_path - путь к каталогу курса в WebTutor
+* @param String code - уникальный код модуля
 * @return Doc - документ модуля курса
-* TODO
 */
-function create_module(course_path){
-    //return OpenNewDoc('x-local://wtv/wtv_course_module.xmd');
-    var manifest_path = course_path + "/imsmanifest.xml";
-    var module_data = get_module_data(manifest_path);
-
+function get_or_create_module(course_path, code){
+    var module_name = get_module_data(course_path + "\\imsmanifest.xml");
+    //Относительный путь к курсу. Относительно папки /wt/web
+    var relation_path = StrScan(FilePathToUrl(course_path), '%*s/wt/web%s')[0];
+    var module = ArrayOptFirstElem(XQuery('for $elem in course_modules where $elem/code="'+code+'" return $elem'));
+    if (module == undefined){        
+        var module_doc = create_module(relation_path, code, module_name);
+    }else{
+        var module_doc = update_module(Int(module.id), relation_path, code, module_name);
+    }
+    return module_doc;    
 }
+
 
 /**
 * Создаёт карточку курса
@@ -68,6 +111,6 @@ function create_module(course_path){
 * @return Doc course - документ курса
 * TODO
 */
-function create_course(module){
+function get_or_create_course(module){
     return OpenNewDoc('x-local://wtv/wtv_course.xmd');
 }

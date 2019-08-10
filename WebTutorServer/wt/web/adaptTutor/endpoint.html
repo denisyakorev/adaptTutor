@@ -19,8 +19,8 @@ function main(course_path){
         return false;
     }
     
-    var module = adapt_lib.create_module(unzipped_course_path);
-    var course = adapt_lib.create_course(module);
+    var module = adapt_lib.get_or_create_module(unzipped_course_path, code);
+    var course = adapt_lib.get_or_create_course(module);
     return true;
 }
 
