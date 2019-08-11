@@ -104,13 +104,41 @@ function get_or_create_module(course_path, code){
     return module_doc;    
 }
 
+/**
+ * Создаёт новый электронный курс с единственным модулем - переданным в качестве параметра
+ * @param Doc module - документ учебного модуля
+ * @return Doc - документ курса
+ */
+function create_course(module){
+    var course = OpenNewDoc('x-local://wtv/wtv_course.xmd');
+    course.TopElem.name = module.TopElem.name;
+    course.TopElem.code = module.TopElem.code;
+    course.TopElem.import_type= 'scorm';
+    course.TopElem.base_url = module.TopElem.url;
+    course.BindToDb();
+    course.Save();
+    var part = course.TopElem.parts.AddChild();
+    part.code = module.TopElem.code;
+    part.name = module.TopElem.name;
+    part.url = module.TopElem.url;
+    part.course_module_id = module.DocID;
+    part.set_status_side = module.TopElem.set_status_side;
+    course.Save();
+    return course;
+}
+
 
 /**
-* Создаёт карточку курса
+* Открывает и возвращает существующую или новую карточку электронного курса
 * @param Doc module - документ модуля курса
 * @return Doc course - документ курса
-* TODO
 */
 function get_or_create_course(module){
-    return OpenNewDoc('x-local://wtv/wtv_course.xmd');
+    var course = ArrayOptFirstElem(XQuery('for $elem in courses where $elem/code="'+module.TopElem.code+'" return $elem'));
+    if (course == undefined){
+        var course_doc = create_course(module);
+    }else{
+        var course_doc = OpenDoc(UrlFromDocID(Int(course.id)));        
+    }
+    return course_doc;
 }

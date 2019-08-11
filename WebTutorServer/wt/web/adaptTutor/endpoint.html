@@ -21,7 +21,7 @@ function main(course_path){
     
     var module = adapt_lib.get_or_create_module(unzipped_course_path, code);
     var course = adapt_lib.get_or_create_course(module);
-    return true;
+    return true;    
 }
 
 main(Request.Form.course_path);

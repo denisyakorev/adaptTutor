@@ -22,7 +22,8 @@ function test_main(){
     }
 
     var course_doc = OpenDoc(UrlFromDocID(Int(course.id)));
-    if(course_doc.TopElem.parts[0].course_module_id != Int(course_module_id)){
+    alert(course_doc.DocID);
+    if(course_doc.TopElem.parts.ObtainChildByKey('tests').course_module_id != Int(module.id)){
         %><h1>Тест 3 не пройден</h1><%
     }
 
@@ -63,16 +64,16 @@ function test_unzip_course(){
 function test_get_or_create_module(){
     var src = 'C:\\Program Files\\WebSoft\\WebTutorServer\\wt\\web\\adaptTutor\\project\\tests\\download.zip';
     var adapt_lib = OpenCodeLib('../../adapt_lib.js');
-    var new_path = adapt_lib.unzip_course(src);
-
-    adapt_lib.get_or_create_module(new_path);
+    var code = adapt_lib.get_code_from_path(src);
+    var new_path = adapt_lib.unzip_course(src, code);
+    adapt_lib.get_or_create_module(new_path, code);
     var module = ArrayOptFirstElem(XQuery('for $elem in course_modules where $elem/code="tests" and $elem/name="Course title" return $elem'));
     if (module == undefined) {
         %><h1>Тест 7 не пройден</h1><%
         return;
     }
     module_doc = OpenDoc(UrlFromDocID(Int(module.id)));
-    if (module_doc.TopElem.url != '/tests/'){
+    if (module_doc.TopElem.url != '/webtutor/tests'){
         %><h1>Тест 8 не пройден</h1><%
     }
     if (module_doc.TopElem.set_status_side != 'course'){
@@ -159,6 +160,72 @@ function test_update_module(){
 
 
 function test_get_or_create_course(){
+    var course_path = '/webtutor/test3';
+    var code = 'test3';
+    var module_name = 'test_module3';
+    var adapt_lib = OpenCodeLib('../../adapt_lib.js');
+    var module_doc = adapt_lib.create_module(course_path, code, module_name)
+
+    var course = adapt_lib.get_or_create_course(module_doc);
+    if (course == undefined) {
+        %><h1>Тест 21 не пройден</h1><%
+        return;
+    }
+    var course_doc = OpenDoc(UrlFromDocID(Int(course.DocID)));
+    if (course_doc.TopElem.code != 'test3'){
+        %><h1>Тест 22 не пройден</h1><%
+    }    
+    if (course_doc.TopElem.name != 'test_module3'){
+        %><h1>Тест 23 не пройден</h1><%
+    }
+    var part = course_doc.TopElem.parts[0];
+    if(part.name != 'test_module3'){
+        %><h1>Тест 24 не пройден</h1><%
+    }
+    if(part.url != '/webtutor/test3'){
+        %><h1>Тест 25 не пройден</h1><%
+    }
+
+    if(Int(part.course_module_id) != Int(module_doc.DocID)){
+        %><h1>Тест 25.2 не пройден</h1><%
+    }
+
+    if(part.set_status_side != 'course'){
+        %><h1>Тест 26 не пройден</h1><%
+    }
+}
+
+
+function test_create_course(){
+    var course_path = '/webtutor/test4';
+    var code = 'test4';
+    var module_name = 'test_module4';
+    var adapt_lib = OpenCodeLib('../../adapt_lib.js');
+    var module_doc = adapt_lib.create_module(course_path, code, module_name)
+
+    var course = adapt_lib.create_course(module_doc);
+    var course_doc = OpenDoc(UrlFromDocID(Int(course.DocID)));
+    if (course_doc.TopElem.code != 'test4'){
+        %><h1>Тест 27 не пройден</h1><%
+    }    
+    if (course_doc.TopElem.name != 'test_module4'){
+        %><h1>Тест 28 не пройден</h1><%
+    }
+    var part = course_doc.TopElem.parts[0];
+    if(part.name != 'test_module4'){
+        %><h1>Тест 29 не пройден</h1><%
+    }
+    if(part.url != '/webtutor/test4'){
+        %><h1>Тест 30 не пройден</h1><%
+    }
+
+    if(Int(part.course_module_id) != Int(module_doc.DocID)){
+        %><h1>Тест 31 не пройден</h1><%
+    }
+
+    if(part.set_status_side != 'course'){
+        %><h1>Тест 32 не пройден</h1><%
+    }    
 
 }
 
@@ -169,5 +236,8 @@ test_get_code_from_path();
 test_get_module_data();
 test_create_module();
 test_update_module();
+test_get_or_create_course();
+test_create_course();
+
 
 %>
