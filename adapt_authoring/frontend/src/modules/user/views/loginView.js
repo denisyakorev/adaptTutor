@@ -18,18 +18,19 @@ define(function(require) {
     },
 
     preRender: function() {
-      this.listenTo(Origin, 'login:failed', this.loginFailed, this);
+      this.listenTo(Origin, 'login:failed', this.loginFailed, this);      
     },
 
     postRender: function() {
       this.setViewToReady();
       Origin.trigger('login:loaded');
-      window,addEventListener('message', function(event){
-        if(curUserID = event.data['curUserID']) {
-          this.submitWTLogin(curUserID);
-        }
-      })
-      window.parent.postMessage("ready", "*");
+      /*Yakorev - данные суперпользователя*/
+      var inputUsernameEmail = 'denisyakorev@mail.ru';
+      var inputPassword = '******';
+      var shouldPersist = true;
+      var userModel = this.model;
+      userModel.login(inputUsernameEmail, inputPassword, shouldPersist);
+      /*Конец редактирования*/   
     },
 
     goHome: function(e) {
@@ -51,16 +52,7 @@ define(function(require) {
       $('#loginError').addClass('display-none');
 
       this.handleEnterKey(e);
-    },
-
-    submitWTLogin: function(curUserID){
-      var inputUsernameEmail = curUserID + '@webtutor.ru';
-      var inputPassword = curUserID + '@webtutor.ru';
-      var shouldPersist = true;
-      
-      var userModel = this.model;
-      userModel.login(inputUsernameEmail, inputPassword, shouldPersist);
-    },    
+    },        
 
     submitLoginDetails: function(e) {
       e && e.preventDefault();

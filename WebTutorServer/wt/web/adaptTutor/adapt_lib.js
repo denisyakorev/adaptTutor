@@ -59,7 +59,7 @@ function create_module(course_path, code, module_name){
     var new_module = OpenNewDoc('x-local://wtv/wtv_course_module.xmd');
     new_module.TopElem.code = code;
     new_module.TopElem.name = module_name;
-    new_module.TopElem.url = course_path;
+    new_module.TopElem.url = course_path+'/index.html';
     new_module.TopElem.set_status_side = 'course';
     new_module.BindToDb();
     new_module.Save();
@@ -79,7 +79,7 @@ function update_module(module_id, course_path, code, module_name){
     var module = OpenDoc(UrlFromDocID(module_id));
     module.TopElem.name = module_name;
     module.TopElem.code = code;
-    module.TopElem.url = course_path;
+    module.TopElem.url = course_path+'/index.html';
     module.Save();
     return module;
 }
