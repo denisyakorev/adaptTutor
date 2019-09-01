@@ -163,7 +163,7 @@ function getConfigJson(courseId, callback) {
               var componentType = _.findWhere(componentTypes, {component: component});
               return callback(null, { name: componentType.name });
             }, function(err, uniqueComponentList) {
-              var configModel = config[0].toObject();
+              var configModel = config[0];
               configModel._enabledComponents = uniqueComponentList;
 
               callback(null, { config: [flattenNestedObjects(configModel)] });
@@ -334,7 +334,7 @@ OutputPlugin.prototype.generateIncludesForConfig = function(config, callback) {
 
   }, function(error) {
     if (error) {
-      logger.log(error);
+      logger.log('error', error);
       return callback(error);
     }
     /**
@@ -1041,7 +1041,6 @@ OutputManager.prototype.setupRoutes = function () {
     var courseId = req.params.courseid;
     var mode = Constants.Modes.Publish;
 
-    /*Yakorev - start publish.js*/
     that.publish(type, courseId, mode, req, res, function (error, result) {
 
       if (error) {
@@ -1056,9 +1055,7 @@ OutputManager.prototype.setupRoutes = function () {
         function(err,httpResponse,body){ /* ... */ }
       })
       return res.json({success: true});
-
     });
-    
   });
 
 };

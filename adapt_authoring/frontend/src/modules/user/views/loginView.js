@@ -1,4 +1,4 @@
-// LICENCE https://github.com/adaptlearning/adapt_authoring/blob/master/LICENSE
+﻿// LICENCE https://github.com/adaptlearning/adapt_authoring/blob/master/LICENSE
 define(function(require) {
   var Backbone = require('backbone');
   var Origin = require('core/origin');
@@ -24,7 +24,7 @@ define(function(require) {
     postRender: function() {
       this.setViewToReady();
       Origin.trigger('login:loaded');
-      /*Yakorev - данные суперпользователя*/
+      /*Данные суперпользователя*/
       var inputUsernameEmail = 'denisyakorev@mail.ru';
       var inputPassword = '******';
       var shouldPersist = true;
